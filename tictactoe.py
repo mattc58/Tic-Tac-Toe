@@ -117,29 +117,6 @@ def calc_computer_move(computer_piece, user_piece):
                     column = 'A' if j == 0 else 'B' if j == 1 else 'C'
                     return '%s%d' % (column, i + 1)
                 else:
-                    # # ok, choose a move
-                    # good_cells = ('B2', 'B1', 'A2', 'C2', 'B3', 'A1', 'C1', 'A3', 'C3')
-                    # for cell in good_cells:
-                    #     column = columns[cell[0]]
-                    #     row = int(cell[1]) - 1
-                    #     if not board[row][column]:
-                    #         test_board[row][column] = computer_piece
-                    #         break
-                    # 
-                    # # check for moves of the user's that give 2 winning solutions, and take that cell
-                    # for i2 in range(len(test_board)):
-                    #     row = test_board[i2]
-                    #     for j2 in range(len(row)):
-                    #         cell = row[j2]
-                    #         if not cell:
-                    #             # empty square, so try it
-                    #             test_board[i2][j2] = user_piece
-                    #             if is_winner(test_board):
-                    #                 column = 'A' if j2 == 0 else 'B' if j2 == 1 else 'C'
-                    #                 return '%s%d' % (column, i2 + 1)
-                    #             else:
-                    #                 test_board[i2][j2] = None
-                                    
                     # reset board
                     test_board = copy.deepcopy(board)
 
@@ -151,7 +128,7 @@ def calc_computer_move(computer_piece, user_piece):
         return 'A3'
     if board[1][2] == user_piece and board[2][1] == user_piece and not board[2][2]:
         return 'C3'
-    if board[1][0] == user_piece and board[2][1] == user_piece and not board[2][0]:
+    if board[1][2] == user_piece and board[0][1] == user_piece and not board[0][2]:
         return 'C1'
         
     # triangles (B1, C2, B3, A2)
@@ -167,7 +144,7 @@ def calc_computer_move(computer_piece, user_piece):
     
     # no winning or game saving moves, so pick a cell out of a list of possibles, ordered
     # by goodness
-    good_cells = ('B2', 'B1', 'A2', 'C2', 'B3', 'A1', 'C1', 'A3', 'C3')
+    good_cells = ('B2', 'A1', 'C1', 'A3', 'C3', 'B1', 'A2', 'B3', 'C2')
     for cell in good_cells:
         column = columns[cell[0]]
         row = int(cell[1]) - 1
