@@ -21,6 +21,12 @@ columns = {
 }
 valid_moves = ('A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3')
 
+class GamePlayException(RuntimeError):
+    '''
+    A typed exception we'll use for game rule violations
+    '''
+    pass
+
 class TicTacToe(object):
     '''
     The class for the game
@@ -35,6 +41,26 @@ class TicTacToe(object):
             [None, None, None]
         ]
 
+    def move(self, piece, cell):
+        '''
+        Update the board using the piece and cell
+        '''
+        # validate the move to be A1 through C3
+        if cell not in valid_moves:
+            print "Please enter a move from %s" % str(valid_moves)
+            raise GamePlayException()
+        
+        # determine the column and row
+        column = columns[cell[0]]
+        row = int(cell[1]) - 1
+    
+        # make sure there's not an existing piece there
+        if self.board[row][column]:
+            print "Please choose an empty cell."
+            raise GamePlayException()
+        
+        self.board[row][column] = piece
+        
     def print_board(self):
         '''
         Print the self.board to the console
@@ -196,22 +222,11 @@ def main():
             else:
                 move = game.calc_computer_move(computer_piece, user_piece)
             
-            # validate the move to be A1 through C3
-            if is_user_move and move not in valid_moves:
-                print "Please enter a move from %s" % str(valid_moves)
-                continue
-            
-            # determine the column and row
-            column = columns[move[0]]
-            row = int(move[1]) - 1
-        
-            # make sure there's not an existing piece there
-            if is_user_move and game.board[row][column]:
-                print "Please choose an empty cell."
-                continue
-            
             # update the board
-            game.board[row][column] = current_move
+            try:
+                game.move(current_move, move)
+            except GamePlayException:
+                continue
         
             # print the board if it's the computer's turn
             if current_move != user_piece:
