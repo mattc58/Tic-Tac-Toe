@@ -51,7 +51,7 @@ def check_cells(cells):
     '''
     Check a passed in set of cells for a winning solution
     '''    
-    return (None not in cells) and (cells[0] == cells[1] and cells[2])
+    return (None not in cells) and (cells[0] == cells[1] == cells[2])
     
 def is_winner():
     '''
@@ -82,11 +82,50 @@ def is_winner():
     # if we come down here, no winner
     return None
         
-def calc_computer_move():
+def calc_computer_move(computer_piece, user_piece):
     '''
     This is a function to calculate the computer's move
     '''
-    return 'A1'
+    # the plan: look for a winning solution, and take it. If not, block his.
+    for i in range(len(board)):
+        row = board[i]
+        for j in range(len(row)):
+            cell = row[j]
+            if not cell:
+                # empty square, so try it
+                board[i][j] = computer_piece
+                if is_winner():
+                    column = 'A' if j == 0 else 'B' if j == 1 else 'C'
+                    return '%s%d' % (column, i + 1)
+                else:
+                    # reset the board
+                    board[i][j] = None
+                    
+    # now block the user's game winning moves if necessary
+    for i in range(len(board)):
+        row = board[i]
+        for j in range(len(row)):
+            cell = row[j]
+            if not cell:
+                # empty square, so try it
+                board[i][j] = user_piece
+                if is_winner():
+                    column = 'A' if j == 0 else 'B' if j == 1 else 'C'
+                    return '%s%d' % (column, i + 1)
+                else:
+                    # reset the board
+                    board[i][j] = None
+    
+    
+    # no winning or game saving moves, so just pick the first empty cell
+    for i in range(len(board)):
+        row = board[i]
+        for j in range(len(row)):
+            cell = row[j]
+            if not cell:
+                column = 'A' if j == 0 else 'B' if j == 1 else 'C'
+                return '%s%d' % (column, i + 1)
+    
 
 def main():
     '''
@@ -99,6 +138,7 @@ def main():
     
     # let's choose a piece at random
     user_piece = random.choice(game_pieces)
+    computer_piece = 'X' if user_piece == 'O' else 'O'
     print "You are playing %s\n" % user_piece
     
     if user_piece == 'X':
@@ -113,7 +153,7 @@ def main():
         if is_user_move:
             move = raw_input("Please choose your move by typing coordinates (like A1 or B2):")
         else:
-            move = calc_computer_move()
+            move = calc_computer_move(computer_piece, user_piece)
             
         # validate the move to be A1 through C3
         if is_user_move and move not in valid_moves:
@@ -137,8 +177,10 @@ def main():
             print_board()
         
         current_move = 'X' if current_move == 'O' else 'O'    
-        
-    print_board()
+    
+    # print the final board
+    if current_move == user_piece:    
+        print_board()
     
     winner = is_winner()  
     if winner:
