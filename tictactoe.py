@@ -14,12 +14,7 @@ import os
 import random
 import copy
 
-game_pieces = ('X', 'O')
-board = [
-    [None, None, None],
-    [None, None, None],
-    [None, None, None]
-]
+board = None
 columns = {
     'A' : 0,
     'B' : 1,
@@ -27,16 +22,6 @@ columns = {
 }
 valid_moves = ('A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3')
 
-def init_board():
-    '''
-    Initialize the board
-    '''
-    global board
-    board = [
-        [None, None, None],
-        [None, None, None],
-        [None, None, None]
-    ]
 
 def print_board():
     '''
@@ -172,17 +157,22 @@ def main():
     print "Good luck! (You'll need it.)"
     print "***********************************************"
     
-    # let's choose a piece at random
+    # go in an infinite loop. kill the program to end the game.
     while True:
-        init_board()
-        user_piece = random.choice(game_pieces)
+        # setup the board and the initial pieces
+        board = [
+               [None, None, None],
+               [None, None, None],
+               [None, None, None]
+           ]
+        user_piece = random.choice(('X', 'O'))
         computer_piece = 'X' if user_piece == 'O' else 'O'
         print "You are playing %s\n" % user_piece
     
         if user_piece == 'X':
             print_board()
     
-        # the main game loop.
+        # the main game loop. Keep going until we have a winner or a full board.
         current_move = 'X'
         while not is_winner(board) and not is_board_full():
             is_user_move = user_piece == current_move
@@ -211,10 +201,11 @@ def main():
             # update the board
             board[row][column] = current_move
         
-            # print the board
+            # print the board if it's the computer's turn
             if current_move != user_piece:
                 print_board()
-        
+            
+            # change pieces
             current_move = 'X' if current_move == 'O' else 'O'    
     
         # print the final board
