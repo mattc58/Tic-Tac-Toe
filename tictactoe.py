@@ -19,12 +19,13 @@ board = [
     [None, None, None],
     [None, None, None]
 ]
-
 columns = {
     'A' : 0,
     'B' : 1,
     'C' : 2
 }
+valid_moves = ('A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3')
+
 
 def print_board():
     '''
@@ -106,17 +107,29 @@ def main():
     # the main game loop.
     current_move = 'X'
     while not is_winner() and not is_board_full():
+        is_user_move = user_piece == current_move
+        
         # get the move from the active user (user or computer)
-        if current_move == user_piece:
+        if is_user_move:
             move = raw_input("Please choose your move by typing coordinates (like A1 or B2):")
         else:
             move = calc_computer_move()
             
         # validate the move to be A1 through C3
+        if is_user_move and move not in valid_moves:
+            print "Please enter a move from %s" % str(valid_moves)
+            continue
             
-        # update the game board
+        # determine the column and row
         column = columns[move[0]]
         row = int(move[1]) - 1
+        
+        # make sure there's not an existing piece there
+        if is_user_move and board[row][column]:
+            print "Please choose an empty cell."
+            continue
+            
+        # update the board
         board[row][column] = current_move
         
         # print the board
