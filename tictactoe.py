@@ -5,6 +5,10 @@ tictactoe.py
 
 This application will play tic-tac-toe and never lose.
 
+Usage:
+    Either run from the command line with "python tictactoe.py", or 
+    from the REPL by doing import tictactoe as t; t.main()
+
 Created by Matt Culbreth on 2010-10-18.
 Please see LICENSE file.
 """
