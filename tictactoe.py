@@ -117,14 +117,14 @@ def calc_computer_move(computer_piece, user_piece):
                     board[i][j] = None
     
     
-    # no winning or game saving moves, so just pick the first empty cell
-    for i in range(len(board)):
-        row = board[i]
-        for j in range(len(row)):
-            cell = row[j]
-            if not cell:
-                column = 'A' if j == 0 else 'B' if j == 1 else 'C'
-                return '%s%d' % (column, i + 1)
+    # no winning or game saving moves, so pick a cell out of a list of possibles, ordered
+    # by goodness
+    good_cells = ('B2', 'B1', 'A2', 'C2', 'B3', 'A1', 'C1', 'A3', 'C3')
+    for cell in good_cells:
+        column = columns[cell[0]]
+        row = int(cell[1]) - 1
+        if not board[row][column]:
+            return cell
     
 
 def main():
