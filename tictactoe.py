@@ -98,8 +98,10 @@ def main():
     
     # let's choose a piece at random
     user_piece = random.choice(game_pieces)
-    print_board()
     print "You are playing %s\n" % user_piece
+    
+    if user_piece == 'X':
+        print_board()
     
     # the main game loop.
     current_move = 'X'
