@@ -6,7 +6,7 @@ tictactoe.py
 This application will play tic-tac-toe and never lose.
 
 Created by Matt Culbreth on 2010-10-18.
-Copyright (c) 2010 __MyCompanyName__. All rights reserved.
+Please see LICENSE file.
 """
 
 import sys
@@ -126,7 +126,8 @@ class TicTacToe(object):
         # make a local copy
         test_board = copy.deepcopy(self.board)
     
-        # the plan: look for a winning solution, and take it. If not, block his.
+        # The plan: look for a winning solution, and take it. If not, block the user's if they have one.
+        # Then look for good moves.
         for i in range(len(test_board)):
             row = test_board[i]
             for j in range(len(row)):
@@ -138,7 +139,7 @@ class TicTacToe(object):
                         column = 'A' if j == 0 else 'B' if j == 1 else 'C'
                         return '%s%d' % (column, i + 1)
                     else:
-                        # reset the self.board
+                        # reset the board
                         test_board[i][j] = None
                     
         # now block the user's game winning moves if necessary
@@ -156,8 +157,6 @@ class TicTacToe(object):
                         # reset self.board
                         test_board = copy.deepcopy(self.board)
 
-    
-    
         # stop cornering
         if self.board[0][1] == user_piece and self.board[1][0] == user_piece and not self.board[0][0]:
             return 'A1'
@@ -179,8 +178,7 @@ class TicTacToe(object):
             if not self.board[1][0] and (self.board[0][1] == user_piece or self.board[0][0] == user_piece):
                 return 'A2'
     
-        # no winning or game saving moves, so pick a cell out of a list of possibles, ordered
-        # by goodness
+        # no winning or game saving moves, so pick a cell out of a list of possibles, ordered by goodness
         good_cells = ('B2', 'A1', 'C1', 'A3', 'C3', 'B1', 'A2', 'B3', 'C2')
         for cell in good_cells:
             column = columns[cell[0]]
