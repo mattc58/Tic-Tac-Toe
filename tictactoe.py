@@ -27,6 +27,16 @@ columns = {
 }
 valid_moves = ('A1', 'A2', 'A3', 'B1', 'B2', 'B3', 'C1', 'C2', 'C3')
 
+def init_board():
+    '''
+    Initialize the board
+    '''
+    global board
+    board = [
+        [None, None, None],
+        [None, None, None],
+        [None, None, None]
+    ]
 
 def print_board():
     '''
@@ -35,7 +45,7 @@ def print_board():
     print "    A | B | C"
     print "-" * 14
     for i in range(len(board)):
-        s = "%d|  " % (i + 1)
+        s = "%d   " % (i + 1)
         row = board[i]
         s += " | ".join([item or ' ' for item in row])
         print s
@@ -120,16 +130,17 @@ def calc_computer_move(computer_piece, user_piece):
                     # reset board
                     test_board = copy.deepcopy(board)
 
-                    
+    
+    
     # stop cornering
     if board[0][1] == user_piece and board[1][0] == user_piece and not board[0][0]:
         return 'A1'
     if board[0][1] == user_piece and board[1][2] == user_piece and not board[0][2]:
-        return 'A3'
+        return 'C1'
     if board[1][2] == user_piece and board[2][1] == user_piece and not board[2][2]:
         return 'C3'
-    if board[1][2] == user_piece and board[0][1] == user_piece and not board[0][2]:
-        return 'C1'
+    if board[1][0] == user_piece and board[2][1] == user_piece and not board[2][0]:
+        return 'A3'
         
     # triangles (B1, C2, B3, A2)
     if board[1][1] == user_piece:
@@ -162,60 +173,65 @@ def main():
     print "***********************************************"
     
     # let's choose a piece at random
-    user_piece = random.choice(game_pieces)
-    computer_piece = 'X' if user_piece == 'O' else 'O'
-    print "You are playing %s\n" % user_piece
+    while True:
+        init_board()
+        user_piece = random.choice(game_pieces)
+        computer_piece = 'X' if user_piece == 'O' else 'O'
+        print "You are playing %s\n" % user_piece
     
-    if user_piece == 'X':
+        if user_piece == 'X':
+            print_board()
+    
+        # the main game loop.
+        current_move = 'X'
+        while not is_winner(board) and not is_board_full():
+            is_user_move = user_piece == current_move
+        
+            # get the move from the active user (user or computer)
+            if is_user_move:
+                move = raw_input("Please choose your move by typing coordinates (like A1 or B2):")
+                move = move.upper()
+            else:
+                move = calc_computer_move(computer_piece, user_piece)
+            
+            # validate the move to be A1 through C3
+            if is_user_move and move not in valid_moves:
+                print "Please enter a move from %s" % str(valid_moves)
+                continue
+            
+            # determine the column and row
+            column = columns[move[0]]
+            row = int(move[1]) - 1
+        
+            # make sure there's not an existing piece there
+            if is_user_move and board[row][column]:
+                print "Please choose an empty cell."
+                continue
+            
+            # update the board
+            board[row][column] = current_move
+        
+            # print the board
+            if current_move != user_piece:
+                print_board()
+        
+            current_move = 'X' if current_move == 'O' else 'O'    
+    
+        # print the final board
         print_board()
     
-    # the main game loop.
-    current_move = 'X'
-    while not is_winner(board) and not is_board_full():
-        is_user_move = user_piece == current_move
-        
-        # get the move from the active user (user or computer)
-        if is_user_move:
-            move = raw_input("Please choose your move by typing coordinates (like A1 or B2):")
+        winner = is_winner(board)  
+        if winner:
+            if winner == user_piece:
+                print "You won! NOOOOOOOOOOOOOOOOO!"
+            else:
+                print "HAH! Beat you."
+        elif is_board_full():
+            print "DRAW"
         else:
-            move = calc_computer_move(computer_piece, user_piece)
+            print "Something I didn't consider possible"
             
-        # validate the move to be A1 through C3
-        if is_user_move and move not in valid_moves:
-            print "Please enter a move from %s" % str(valid_moves)
-            continue
-            
-        # determine the column and row
-        column = columns[move[0]]
-        row = int(move[1]) - 1
-        
-        # make sure there's not an existing piece there
-        if is_user_move and board[row][column]:
-            print "Please choose an empty cell."
-            continue
-            
-        # update the board
-        board[row][column] = current_move
-        
-        # print the board
-        if current_move != user_piece:
-            print_board()
-        
-        current_move = 'X' if current_move == 'O' else 'O'    
-    
-    # print the final board
-    print_board()
-    
-    winner = is_winner(board)  
-    if winner:
-        if winner == user_piece:
-            print "You won! NOOOOOOOOOOOOOOOOO!"
-        else:
-            print "HAH! Beat you."
-    elif is_board_full():
-        print "DRAW"
-    else:
-        print "Something I didn't consider possible"
+        print "\nNEW GAME\n"
         
         
 if __name__ == '__main__':
