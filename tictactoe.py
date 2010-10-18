@@ -12,6 +12,7 @@ Copyright (c) 2010 __MyCompanyName__. All rights reserved.
 import sys
 import os
 import random
+import copy
 
 game_pieces = ('X', 'O')
 board = [
@@ -53,27 +54,27 @@ def check_cells(cells):
     '''    
     return (None not in cells) and (cells[0] == cells[1] == cells[2])
     
-def is_winner():
+def is_winner(test_board):
     '''
     Return True if we have a winner
     '''
     # check for a row of all the same
     cells = []
     
-    for row in board:
+    for row in test_board:
         cells = [row[0], row[1], row[2]]
         if check_cells(cells):
             return cells[0]
     
     # for a column of all the same
     for column in range(3):
-        cells = [board[0][column], board[1][column], board[2][column]]
+        cells = [test_board[0][column], test_board[1][column], test_board[2][column]]
         if check_cells(cells):
             return cells[0]
     
     # check the two diagonals
-    diag1 = [board[0][0], board[1][1], board[2][2]]
-    diag2 = [board[0][2], board[1][1], board[2][0]]
+    diag1 = [test_board[0][0], test_board[1][1], test_board[2][2]]
+    diag2 = [test_board[0][2], test_board[1][1], test_board[2][0]]
     if check_cells(diag1):
         return diag1[0]
     if check_cells(diag2):
@@ -86,36 +87,83 @@ def calc_computer_move(computer_piece, user_piece):
     '''
     This is a function to calculate the computer's move
     '''
+    # make a local copy
+    test_board = copy.deepcopy(board)
+    
     # the plan: look for a winning solution, and take it. If not, block his.
-    for i in range(len(board)):
-        row = board[i]
+    for i in range(len(test_board)):
+        row = test_board[i]
         for j in range(len(row)):
             cell = row[j]
             if not cell:
                 # empty square, so try it
-                board[i][j] = computer_piece
-                if is_winner():
+                test_board[i][j] = computer_piece
+                if is_winner(test_board):
                     column = 'A' if j == 0 else 'B' if j == 1 else 'C'
                     return '%s%d' % (column, i + 1)
                 else:
                     # reset the board
-                    board[i][j] = None
+                    test_board[i][j] = None
                     
     # now block the user's game winning moves if necessary
-    for i in range(len(board)):
-        row = board[i]
+    for i in range(len(test_board)):
+        row = test_board[i]
         for j in range(len(row)):
             cell = row[j]
             if not cell:
                 # empty square, so try it
-                board[i][j] = user_piece
-                if is_winner():
+                test_board[i][j] = user_piece
+                if is_winner(test_board):
                     column = 'A' if j == 0 else 'B' if j == 1 else 'C'
                     return '%s%d' % (column, i + 1)
                 else:
-                    # reset the board
-                    board[i][j] = None
-    
+                    # # ok, choose a move
+                    # good_cells = ('B2', 'B1', 'A2', 'C2', 'B3', 'A1', 'C1', 'A3', 'C3')
+                    # for cell in good_cells:
+                    #     column = columns[cell[0]]
+                    #     row = int(cell[1]) - 1
+                    #     if not board[row][column]:
+                    #         test_board[row][column] = computer_piece
+                    #         break
+                    # 
+                    # # check for moves of the user's that give 2 winning solutions, and take that cell
+                    # for i2 in range(len(test_board)):
+                    #     row = test_board[i2]
+                    #     for j2 in range(len(row)):
+                    #         cell = row[j2]
+                    #         if not cell:
+                    #             # empty square, so try it
+                    #             test_board[i2][j2] = user_piece
+                    #             if is_winner(test_board):
+                    #                 column = 'A' if j2 == 0 else 'B' if j2 == 1 else 'C'
+                    #                 return '%s%d' % (column, i2 + 1)
+                    #             else:
+                    #                 test_board[i2][j2] = None
+                                    
+                    # reset board
+                    test_board = copy.deepcopy(board)
+
+                    
+    # stop cornering
+    if board[0][1] == user_piece and board[1][0] == user_piece and not board[0][0]:
+        return 'A1'
+    if board[0][1] == user_piece and board[1][2] == user_piece and not board[0][2]:
+        return 'A3'
+    if board[1][2] == user_piece and board[2][1] == user_piece and not board[2][2]:
+        return 'C3'
+    if board[1][0] == user_piece and board[2][1] == user_piece and not board[2][0]:
+        return 'C1'
+        
+    # triangles (B1, C2, B3, A2)
+    if board[1][1] == user_piece:
+        if not board[0][1] and (board[0][0] == user_piece or board[0][2] == user_piece):
+            return 'B1'
+        if not board[1][2] and (board[0][2] == user_piece or board[2][2] == user_piece):
+            return 'C2'
+        if not board[2][1] and (board[2][0] == user_piece or board[2][2] == user_piece):
+            return 'B3'
+        if not board[1][0] and (board[0][1] == user_piece or board[0][0] == user_piece):
+            return 'A2'
     
     # no winning or game saving moves, so pick a cell out of a list of possibles, ordered
     # by goodness
@@ -146,7 +194,7 @@ def main():
     
     # the main game loop.
     current_move = 'X'
-    while not is_winner() and not is_board_full():
+    while not is_winner(board) and not is_board_full():
         is_user_move = user_piece == current_move
         
         # get the move from the active user (user or computer)
@@ -179,10 +227,9 @@ def main():
         current_move = 'X' if current_move == 'O' else 'O'    
     
     # print the final board
-    if current_move == user_piece:    
-        print_board()
+    print_board()
     
-    winner = is_winner()  
+    winner = is_winner(board)  
     if winner:
         if winner == user_piece:
             print "You won! NOOOOOOOOOOOOOOOOO!"
