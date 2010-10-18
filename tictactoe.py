@@ -152,6 +152,8 @@ def main():
     '''
     The main function with the main game loop
     '''
+    global board
+    
     print "***********************************************"
     print "Hello, this is Matt Culbreth's Tic-Tac-Toe game."
     print "Good luck! (You'll need it.)"
